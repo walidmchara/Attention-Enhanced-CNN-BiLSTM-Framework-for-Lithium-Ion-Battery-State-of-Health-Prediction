@@ -1,38 +1,132 @@
-Data Overview:
-Four Li-ion batteries (# 5, 6, 7, and 18) underwent three operational profiles (charge, discharge, and impedance) at room temperature. Charging followed a constant current (CC) mode at 1.5A until reaching 4.2V, shifting to constant voltage (CV) until the current dropped to 20mA. Discharge involved a constant current (CC) at 2A until reaching specified voltage levels. Impedance measurements occurred through electrochemical impedance spectroscopy (EIS) with a frequency sweep from 0.1Hz to 5kHz. Repeated cycles accelerated battery aging, monitored by impedance changes. Experiments ceased upon reaching end-of-life (EOL) criteria—a 30% capacity fade from 2Ahr to 1.4Ahr. This dataset aids in predicting remaining charge for a given discharge cycle and remaining useful life (RUL).
+# Attention-Based CNN-BiLSTM for Li-ion Battery SOH Prediction
 
-File Structure:
-- B0005.mat: Data for Battery #5
-- B0006.mat: Data for Battery #6
-- B0007.mat: Data for Battery #7
-- B0018.mat: Data for Battery #18
+A deep-learning project for lithium-ion battery **State of Health (SOH)** estimation using an
+**Attention-based CNN-BiLSTM** architecture and NASA battery aging datasets.
 
-Data Structure:
-- **cycle:** Top-level structure array with charge, discharge, and impedance operations.
-- **type:** Operation type (charge, discharge, or impedance).
-- **ambient_temperature:** Ambient temperature in degrees Celsius.
-- **time:** Date and time of the cycle start in MATLAB date vector format.
-- **data:** Structure containing measurements:
-  - For charge: 
-    - Voltage_measured: Battery terminal voltage (Volts)
-    - Current_measured: Battery output current (Amps)
-    - Temperature_measured: Battery temperature (degrees Celsius)
-    - Current_charge: Current measured at charger (Amps)
-    - Voltage_charge: Voltage measured at charger (Volts)
-    - Time: Time vector for the cycle (secs)
-  - For discharge:
-    - Voltage_measured: Battery terminal voltage (Volts)
-    - Current_measured: Battery output current (Amps)
-    - Temperature_measured: Battery temperature (degrees Celsius)
-    - Current_charge: Current measured at load (Amps)
-    - Voltage_charge: Voltage measured at load (Volts)
-    - Time: Time vector for the cycle (secs)
-    - Capacity: Battery capacity (Ahr) for discharge till 2.7V
-  - For impedance:
-    - Sense_current: Current in sense branch (Amps)
-    - Battery_current: Current in battery branch (Amps)
-    - Current_ratio: Ratio of the above currents
-    - Battery_impedance: Battery impedance (Ohms) computed from raw data
-    - Rectified_impedance: Calibrated and smoothed battery impedance (Ohms)
-    - Re: Estimated electrolyte resistance (Ohms)
-    - Rct: Estimated charge transfer resistance (Ohms)
+## Model
+
+The notebooks implement the following pipeline:
+
+`Battery measurements → 1D CNN → Max Pooling → Dropout → BiLSTM → Attention → Dense SOH output`
+
+The model uses:
+- Conv1D with 64 filters
+- MaxPooling1D
+- Dropout = 0.30
+- Bidirectional LSTM with 100 units
+- Sigmoid attention vector
+- Dense regression output
+- Adam optimizer and MSE loss
+
+## Experiments
+
+### Experiment 1 — B0018
+Training batteries:
+- B0005
+- B0006
+- B0007
+
+Independent test battery:
+- **B0018**
+
+Notebook: `notebooks/CNN_BiLSTM_Attention_B0018.ipynb`
+
+### Experiment 2 — B0030
+Training batteries:
+- B0029
+- B0031
+- B0032
+
+Independent test battery:
+- **B0030**
+
+Notebook: `notebooks/CNN_BiLSTM_Attention_B0030.ipynb`
+
+## Input features
+
+The original implementation uses:
+- Capacity
+- Measured voltage
+- Measured current
+- Measured temperature
+- Load current
+- Load voltage
+- Time
+
+SOH is calculated relative to the initial battery capacity.
+
+## Repository structure
+
+```text
+Attention-CNN-BiLSTM-SOH-Prediction/
+├── notebooks/
+│   ├── CNN_BiLSTM_Attention_B0018.ipynb
+│   └── CNN_BiLSTM_Attention_B0030.ipynb
+├── src/
+│   └── README.md
+├── data/
+│   └── README.md
+├── models/
+│   └── .gitkeep
+├── results/
+│   └── figures/
+│       └── .gitkeep
+├── requirements.txt
+├── .gitignore
+├── LICENSE
+└── README.md
+```
+
+## Dataset setup
+
+Place the NASA `.mat` battery files in `data/`.
+
+Required for the included experiments:
+
+`B0005.mat`, `B0006.mat`, `B0007.mat`, `B0018.mat`,
+`B0029.mat`, `B0030.mat`, `B0031.mat`, `B0032.mat`.
+
+> The original notebooks contain a local Windows path (`E:/`). Update the dataset path before running,
+> or refactor the loader to point to the repository `data/` directory.
+
+## Installation
+
+```bash
+git clone <your-repository-url>
+cd Attention-CNN-BiLSTM-SOH-Prediction
+python -m venv .venv
+```
+
+Windows:
+
+```bash
+.venv\Scripts\activate
+pip install -r requirements.txt
+jupyter notebook
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+jupyter notebook
+```
+
+## Evaluation
+
+The notebooks calculate SOH predictions per cycle and include error metrics such as:
+- RMSE
+- MAPE
+
+They also plot training and validation loss.
+
+## Suggested GitHub topics
+
+`battery-health` `state-of-health` `lithium-ion-battery` `deep-learning`
+`cnn` `bilstm` `attention-mechanism` `remaining-useful-life`
+`predictive-maintenance` `tensorflow` `nasa-dataset`
+
+## License
+
+MIT License.
