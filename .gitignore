@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Trained models
+*.h5
+*.keras
+
+# Local datasets
+data/*.mat
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
