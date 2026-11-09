@@ -1,25 +1,25 @@
-# Dataset
+# Battery datasets
 
-Place the NASA lithium-ion battery `.mat` files here.
+The repository contains cycle-level measurements from the NASA PCoE and CALCE CS2 battery-aging benchmarks. Their provenance, conversion settings and file checksums are recorded in [processed/manifest.json](processed/manifest.json).
 
-Experiments in this repository require:
+## Available processed data
 
-- B0005.mat
-- B0006.mat
-- B0007.mat
-- B0018.mat
-- B0029.mat
-- B0030.mat
-- B0031.mat
-- B0032.mat
+| Source | Dataset | Directory |
+| --- | --- | --- |
+| NASA PCoE | B0005, B0006, B0007, B0018, B0029, B0030, B0031, B0032, B0053, B0054, B0055, B0056 | [processed/nasa/](processed/nasa/) |
+| CALCE (University of Maryland) | CS2_35, CS2_36, CS2_37, CS2_38 | [processed/calce/](processed/calce/) |
 
-Dataset files are intentionally excluded from Git by `.gitignore`.
+The CSV files contain cycle-level statistics and capacity-derived health indicators. They are suitable for cycle-level analyses; they do not retain every time sample from the original experiments.
 
+## Notebook experiments
 
-## User-supplied NASA + CALCE source archives
+The two notebooks in `notebooks/` use MATLAB discharge traces through `scipy.io.loadmat`, rather than the processed CSV aggregates. Their expected MATLAB inputs are:
 
-The NASA outer ZIP contains nested archives with the `.mat` files. CALCE CS2_35–38 contain 25/26/27/28 `.xlsx` files; the original CALCE discharge capacity column is cumulative, so it must be differenced per cycle. See [`../docs/REAL_DATA_SETUP.md`](../docs/REAL_DATA_SETUP.md). Run `python scripts/prepare_battery_data.py --help` from the project root. Never commit the original archives or processed CSVs.
+- **B0018 experiment:** B0005, B0006, B0007 for model development; B0018 for independent evaluation.
+- **B0030 experiment:** B0029, B0031, B0032 for model development; B0030 for independent evaluation.
 
-## Dataset CSVs included
+The original `.mat` files are maintained separately from the versioned cycle-level tables. For MATLAB-based notebook runs, the expected local paths are `data/B0005.mat`, etc. The extraction procedure is documented in [../docs/REAL_DATA_SETUP.md](../docs/REAL_DATA_SETUP.md). Both notebooks use repository-relative paths instead of machine-specific Windows paths.
 
-NASA and CALCE cycle-level CSVs and a provenance [manifest](processed/manifest.json) are now tracked under [processed/](processed/). For legacy notebooks, supply the original NASA `.mat` files locally in `data/`. Detailed steps: [docs/REAL_DATA_SETUP.md](../docs/REAL_DATA_SETUP.md).
+## Data provenance and evaluation
+
+Original sources: [NASA PCoE](https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/) and [CALCE/UMD](https://calce.umd.edu/data). For health prediction, capacity-derived labels must be kept separate from same-cycle predictors; cross-cell comparisons require a held-out battery. The included processed tables provide measured data, but their availability alone does not establish reproduction of any published performance figures.
