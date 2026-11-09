@@ -1,142 +1,40 @@
-# Attention-Based CNN-BiLSTM for Li-ion Battery SOH Prediction
+# CNN–BiLSTM with Attention for Lithium-Ion Battery SOH
 
-A deep-learning project for lithium-ion battery **State of Health (SOH)** estimation using an
-**Attention-based CNN-BiLSTM** architecture and NASA battery aging datasets.
+TensorFlow notebook experiments for estimating lithium-ion battery State of Health (SOH) from NASA PCoE battery-aging measurements.
 
-## Model
+## Network architecture
 
-The notebooks implement the following pipeline:
+`Discharge measurements → Conv1D → MaxPooling → Dropout → BiLSTM → Attention → SOH regression`
 
-`Battery measurements → 1D CNN → Max Pooling → Dropout → BiLSTM → Attention → Dense SOH output`
+The experimental notebook architecture uses a 64-filter convolutional layer, 0.30 dropout, a bidirectional LSTM with 100 units, an attention stage and dense regression output. The optimizer is Adam with mean-squared-error loss.
 
-The model uses:
-- Conv1D with 64 filters
-- MaxPooling1D
-- Dropout = 0.30
-- Bidirectional LSTM with 100 units
-- Sigmoid attention vector
-- Dense regression output
-- Adam optimizer and MSE loss
+## Battery-level experiments
 
-## Experiments
+| Experiment | Development cells | Independent test cell | Notebook |
+| --- | --- | --- | --- |
+| NASA B0018 | B0005, B0006, B0007 | **B0018** | [B0018 experiment](notebooks/CNN_BiLSTM_Attention_B0018.ipynb) |
+| NASA B0030 | B0029, B0031, B0032 | **B0030** | [B0030 experiment](notebooks/CNN_BiLSTM_Attention_B0030.ipynb) |
 
-### Experiment 1 — B0018
-Training batteries:
-- B0005
-- B0006
-- B0007
+The MATLAB-based notebooks extract sample-level voltage, current, temperature, load measurements and time information. SOH is defined relative to the initial measured capacity. Feature selection must be reviewed for target leakage in any independent evaluation.
 
-Independent test battery:
-- **B0018**
+## Datasets
 
-Notebook: `notebooks/CNN_BiLSTM_Attention_B0018.ipynb`
+The repository includes 12 NASA PCoE battery series and four CALCE CS2 series as cycle-level CSV tables in [data/processed/](data/processed/). The [dataset manifest](data/processed/manifest.json) records source checksums and conversion counts.
 
-### Experiment 2 — B0030
-Training batteries:
-- B0029
-- B0031
-- B0032
+The two existing TensorFlow notebooks use the **original NASA MATLAB discharge traces**, not the CSV aggregates. Their MATLAB inputs are read from repository-relative paths under `data/` (for example `data/B0005.mat`). These source files are maintained separately from the versioned CSV tables. See [data documentation](data/README.md) and [source extraction guide](docs/REAL_DATA_SETUP.md) for their precise format and provenance.
 
-Independent test battery:
-- **B0030**
-
-Notebook: `notebooks/CNN_BiLSTM_Attention_B0030.ipynb`
-
-## Input features
-
-The original implementation uses:
-- Capacity
-- Measured voltage
-- Measured current
-- Measured temperature
-- Load current
-- Load voltage
-- Time
-
-SOH is calculated relative to the initial battery capacity.
-
-## Repository structure
-
-```text
-Attention-CNN-BiLSTM-SOH-Prediction/
-├── notebooks/
-│   ├── CNN_BiLSTM_Attention_B0018.ipynb
-│   └── CNN_BiLSTM_Attention_B0030.ipynb
-├── src/
-│   └── README.md
-├── data/
-│   └── README.md
-├── models/
-│   └── .gitkeep
-├── results/
-│   └── figures/
-│       └── .gitkeep
-├── requirements.txt
-├── .gitignore
-├── LICENSE
-└── README.md
-```
-
-## Dataset setup
-
-Place the NASA `.mat` battery files in `data/`.
-
-Required for the included experiments:
-
-`B0005.mat`, `B0006.mat`, `B0007.mat`, `B0018.mat`,
-`B0029.mat`, `B0030.mat`, `B0031.mat`, `B0032.mat`.
-
-> The original notebooks contain a local Windows path (`E:/`). Update the dataset path before running,
-> or refactor the loader to point to the repository `data/` directory.
-
-## Installation
+## Environment
 
 ```bash
-git clone <your-repository-url>
-cd Attention-CNN-BiLSTM-SOH-Prediction
 python -m venv .venv
-```
-
-Windows:
-
-```bash
-.venv\Scripts\activate
 pip install -r requirements.txt
 jupyter notebook
 ```
 
-Linux/macOS:
+Activate the environment according to the operating system before starting Jupyter. The notebooks are located in [notebooks/](notebooks/). Evaluation includes SOH curves, prediction error and training history.
 
-```bash
-source .venv/bin/activate
-pip install -r requirements.txt
-jupyter notebook
-```
+## Research notes
 
-## Evaluation
+For reproducible battery-level evaluation, keep the held-out cell outside feature selection, normalization fitting and training. The included processed tables and notebook workflows do not by themselves establish correspondence with any publication's reported benchmark scores.
 
-The notebooks calculate SOH predictions per cycle and include error metrics such as:
-- RMSE
-- MAPE
-
-They also plot training and validation loss.
-
-## Suggested GitHub topics
-
-`battery-health` `state-of-health` `lithium-ion-battery` `deep-learning`
-`cnn` `bilstm` `attention-mechanism` `remaining-useful-life`
-`predictive-maintenance` `tensorflow` `nasa-dataset`
-
-## License
-
-MIT License.
-
-
-## Real NASA PCoE and CALCE CS2 datasets (2026-11-09 integration)
-
-The original NASA ZIP and four CALCE CS2 ZIP archives have been inspected. Use the new offline converter in [`scripts/prepare_battery_data.py`](scripts/prepare_battery_data.py) and see [`docs/REAL_DATA_SETUP.md`](docs/REAL_DATA_SETUP.md) for commands, source links, quality controls, target definitions and limitations. Source archives and derived CSVs are deliberately ignored by Git. This integration validates the **data import interface**, not the published paper metrics.
-
-
-## NASA and CALCE data included
-
-The [data/processed/](data/processed/) directory now contains cycle-level CSVs for 12 NASA cells and four CALCE CS2 cells, with a [manifest](data/processed/manifest.json) and [setup guide](docs/REAL_DATA_SETUP.md). **The original two notebooks still need full NASA `.mat` files placed locally in `data/`.** Aggregated CSVs do not replace the time-series raw inputs.
+The underlying battery datasets are maintained by the [NASA Prognostics Center of Excellence](https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/) and [CALCE/University of Maryland](https://calce.umd.edu/data). The project is distributed under the terms of its [LICENSE](LICENSE).
