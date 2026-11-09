@@ -135,3 +135,8 @@ MIT License.
 ## Real NASA PCoE and CALCE CS2 datasets (2026-11-09 integration)
 
 The original NASA ZIP and four CALCE CS2 ZIP archives have been inspected. Use the new offline converter in [`scripts/prepare_battery_data.py`](scripts/prepare_battery_data.py) and see [`docs/REAL_DATA_SETUP.md`](docs/REAL_DATA_SETUP.md) for commands, source links, quality controls, target definitions and limitations. Source archives and derived CSVs are deliberately ignored by Git. This integration validates the **data import interface**, not the published paper metrics.
+
+
+## NASA and CALCE data included
+
+The [data/processed/](data/processed/) directory now contains cycle-level CSVs for 12 NASA cells and four CALCE CS2 cells, with a [manifest](data/processed/manifest.json) and [setup guide](docs/REAL_DATA_SETUP.md). **The original two notebooks still need full NASA `.mat` files placed locally in `data/`.** Aggregated CSVs do not replace the time-series raw inputs.

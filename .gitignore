@@ -22,8 +22,7 @@ Thumbs.db
 
 # NASA PCoE / CALCE originals and generated cycle-level datasets
 data/raw/
-data/processed/
 data/**/*.zip
 data/**/*.mat
 data/**/*.xlsx
-data/**/*.csv
+# Versioned cycle-level CSVs under data/processed; source .mat files remain excluded.
