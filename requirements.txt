@@ -6,3 +6,7 @@ matplotlib
 tensorflow
 jupyter
 notebook
+
+openpyxl>=3.1
+lxml>=5.0
+pytest>=7.0
