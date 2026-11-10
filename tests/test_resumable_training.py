@@ -6,8 +6,12 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+import sys
 
 import numpy as np
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 from scripts.train_resumable import (
     FEATURES,
@@ -16,9 +20,6 @@ from scripts.train_resumable import (
     load_snapshot,
     prepare_data,
 )
-
-
-ROOT = Path(__file__).resolve().parents[1]
 
 
 class RealDataAndRecoveryTest(unittest.TestCase):
