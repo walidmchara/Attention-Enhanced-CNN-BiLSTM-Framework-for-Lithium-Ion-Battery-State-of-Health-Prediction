@@ -1,0 +1,26 @@
+name: Verify authentic NASA MATLAB data download
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/verify-original-nasa-download.yml'
+jobs:
+  download-and-inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q numpy scipy
+      - name: Download official source, verify hash, extract only needed MAT files
+        run: |
+          python scripts/restore_original_nasa_mat.py \
+            --archive "$RUNNER_TEMP/nasa_source_original.zip" \
+            --dest "$RUNNER_TEMP/nasa_cells" \
+            --manifest-out "$RUNNER_TEMP/raw_mat_provenance.json" \
+            --cells B0005 B0006 B0007 B0018 B0029 B0030 B0031 B0032
+      - name: Do not publish source MAT files or ZIP artifacts
+        run: |
+          echo 'The original source files remain only on the ephemeral CI runner.'
