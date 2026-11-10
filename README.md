@@ -82,6 +82,10 @@ The separate [cycle-level training workflow](notebooks/train_resumable_colab.ipy
 
 For future independent evaluation, model selection should use only development batteries, normalize on training data, avoid same-cycle capacity-derived features when predicting capacity-based SOH, and report multiple seeds and distinct held-out batteries.
 
+## Pre-release research review
+
+Scientific validation, code provenance, licensing and disclosure considerations are documented in the [pre-release review](PUBLICATION_REVIEW.md). The recorded MATLAB-protocol results have passed artifact checks, but the independent, leakage-free evaluation remains outstanding.
+
 ## Verification
 
 The recorded results include `metrics.json`, `test_predictions.csv`, `training_history.csv`, source-file hashes, and a publication manifest with SHA-256 checksums. [Automated integrity checks](.github/workflows/publication-integrity.yml) verify metrics against the committed predictions and check figure presence, history length, artifact hashes, and disallowed file types. These checks establish artifact consistency, **not** the methodological validity of the original training protocol.
