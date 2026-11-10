@@ -20,7 +20,7 @@ This report distinguishes reproducibility and artifact integrity from scientific
 | Credentials/raw weights | Prepublication Git check rejects tracked `.mat`, `.keras`, `.h5`, certificates and key files | Check configured |
 | Reproducibility CI | Python syntax, MATLAB source-recovery tests, synthetic Keras optimizer-resume tests and result integrity workflow | Passing at last check |
 
-The last CI status can be inspected in [Actions](../../actions).
+The last CI status can be inspected in [Actions](https://github.com/walidmchara/Attention-Enhanced-CNN-BiLSTM-Framework-for-Lithium-Ion-Battery-State-of-Health-Prediction/actions).
 
 ## Issues that must not be hidden
 
