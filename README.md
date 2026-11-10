@@ -69,3 +69,24 @@ and automatic resume after a Colab interruption:
 input target leakage and test-set scaling convention. The numerical metrics
 cannot be described as leakage-free generalization. The separate cycle-level
 CSV experiment and its earlier checkpoint/results are preserved unchanged.
+
+
+## Standalone Python training (no notebook execution)
+
+The original MATLAB experiments can now be run directly from the
+[Python pipeline](legacy_mat_pipeline/) instead of executing the Colab
+`.ipynb` files. The original notebooks remain intact.
+
+After installing `requirements.txt` and mounting Google Drive in Colab:
+
+```bash
+python -m legacy_mat_pipeline --experiment B0018 --run-root /content/drive/MyDrive/NASA_CNN_BiLSTM_Attention
+```
+
+Use `--experiment B0030` for the second original experiment. The runner
+downloads and validates the NASA `.mat` inputs, preserves the original
+seven features (including capacity), trains for 30 epochs, resumes full
+Keras checkpoints, computes metrics after cycle-wise averaging and saves
+plots plus reports. See the [Python usage guide](legacy_mat_pipeline/README.md)
+for Colab setup and output paths. This remains an archival reproduction
+with known target leakage, not a leakage-free SOH benchmark.
