@@ -1,0 +1,16 @@
+{
+  "epochs_completed": 30,
+  "evaluation": "last epoch; raw discharge samples averaged within cycle",
+  "experiment": "B0030",
+  "protocol": "original-mat-legacy-with-target-leakage",
+  "scientific_warning": "The original notebook inputs include same-cycle capacity (target leakage), normalizes test data with a new MinMaxScaler fit, and uses sample-level random validation. These values are not leakage-free generalization scores.",
+  "source": "Original user-provided MATLAB notebook experiment",
+  "test": {
+    "discharge_cycles": 40,
+    "mae": 0.004563940180152537,
+    "mape_percent": 0.44486038608908196,
+    "mse": 3.0897708779718835e-05,
+    "r2_additional": 0.9765970521226208,
+    "rmse": 0.005558570749726843
+  }
+}
