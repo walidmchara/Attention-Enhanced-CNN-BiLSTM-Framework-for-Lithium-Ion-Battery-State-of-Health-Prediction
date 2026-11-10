@@ -1,0 +1,30 @@
+name: Scientific artifact integrity
+on:
+  push:
+    paths:
+      - 'README.md'
+      - 'results/**'
+      - 'tests/test_publication_integrity.py'
+      - '.github/workflows/publication-integrity.yml'
+  pull_request:
+    paths:
+      - 'README.md'
+      - 'results/**'
+      - 'tests/test_publication_integrity.py'
+      - '.github/workflows/publication-integrity.yml'
+  workflow_dispatch:
+jobs:
+  measured-results:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify metrics, published prediction traces, figures and source hashes
+        run: |
+          python -m unittest discover -s tests -p 'test_publication_integrity.py' -v
+      - name: Check Python module syntax
+        run: |
+          python -m compileall -q legacy_mat_pipeline scripts tests
