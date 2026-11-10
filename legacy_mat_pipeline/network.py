@@ -1,4 +1,4 @@
-"""Exact CNN-BiLSTM-attention network specification from the source notebooks."""
+"""CNN-BiLSTM feature-gating regression network."""
 
 
 def build_model(n_features: int = 7):
@@ -19,6 +19,6 @@ def build_model(n_features: int = 7):
     hidden = Multiply()([hidden, attention])
     outputs = Dense(1, activation="relu")(hidden)
     model = Model(inputs=inputs, outputs=outputs)
-    # Accuracy is intentionally retained as an original (poor regression) metric.
+    # Retained for parity with the archived implementation; MSE is the loss.
     model.compile(loss="mse", optimizer="adam", metrics=["accuracy"])
     return model
