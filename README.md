@@ -38,3 +38,19 @@ Activate the environment according to the operating system before starting Jupyt
 For reproducible battery-level evaluation, keep the held-out cell outside feature selection, normalization fitting and training. The included processed tables and notebook workflows do not by themselves establish correspondence with any publication's reported benchmark scores.
 
 The underlying battery datasets are maintained by the [NASA Prognostics Center of Excellence](https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/) and [CALCE/University of Maryland](https://calce.umd.edu/data). The project is distributed under the terms of its [LICENSE](LICENSE).
+
+## Fully resumable Colab training from the included NASA CSV data
+
+For a **new, leakage-aware cycle-level evaluation**, use the
+[resumable Colab notebook](notebooks/train_resumable_colab.ipynb) and
+[training/recovery guide](TRAINING_RECOVERY.md). The 30-epoch B0018 trial
+trains on B0005/B0006, validates on B0007 and tests only on B0018;
+features exclude battery capacity and target columns, and MinMax scaling
+uses training cells only. Keras saves model + optimizer state to
+**persistent Google Drive** after each epoch. It can resume with
+`--resume`; small scientific reports can be published to GitHub.
+
+This is **not** an exact re-run of the historical notebooks: they require
+original NASA MATLAB discharge samples, which are not versioned in this
+repository, and use a different input representation. Do not attribute
+results of the new CSV workflow to the original paper.
