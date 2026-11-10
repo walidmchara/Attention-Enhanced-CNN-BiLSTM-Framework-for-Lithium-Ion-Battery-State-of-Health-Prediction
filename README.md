@@ -4,6 +4,32 @@ TensorFlow implementation and experimental record for lithium-ion battery state-
 
 **Experimental scope:** The numerical results below reproduce the **historical notebook protocol**. That protocol has target leakage and test-dependent normalization. Accordingly, its reported accuracy must **not** be interpreted as evidence of leakage-free SOH prediction or cross-battery generalization. A separate, train-only-normalized cycle-level pipeline is provided for method development; it is not a like-for-like reproduction of the MATLAB experiments.
 
+## Associated publication — IEEE ICCAD 2024
+
+**Walid Mchara, Mohamed Abdellatif Khalfa, and Lazhar Manai**, “Hybrid Deep Learning with Attention Mechanism based Health State Intelligent Diagnosis of Lithium-Ion Batteries,” in *2024 International Conference on Control, Automation and Diagnosis (ICCAD)*, Paris, France, 15–17 May 2024, IEEE, pp. 1–6, 2024.
+
+- **DOI:** [10.1109/ICCAD60883.2024.10553858](https://doi.org/10.1109/ICCAD60883.2024.10553858)
+- **Bibliographic record:** [DBLP — ICCAD 2024](https://dblp.org/rec/conf/iccad2/McharaKM24)
+- **Conference:** International Conference on Control, Automation and Diagnosis (ICCAD 2024), Paris, France
+- **Publisher:** IEEE
+
+**Citation (BibTeX):**
+
+```bibtex
+@inproceedings{Mchara2024ICCAD,
+  author    = {Walid Mchara and Mohamed Abdellatif Khalfa and Lazhar Manai},
+  title     = {Hybrid Deep Learning with Attention Mechanism based Health State Intelligent Diagnosis of Lithium-Ion Batteries},
+  booktitle = {2024 International Conference on Control, Automation and Diagnosis (ICCAD)},
+  year      = {2024},
+  pages     = {1--6},
+  publisher = {IEEE},
+  doi       = {10.1109/ICCAD60883.2024.10553858},
+  address   = {Paris, France}
+}
+```
+
+**Relationship to this repository:** This repository documents a CNN–BiLSTM attention-based SOH estimation implementation and follow-up reproducibility work associated with the research topic of the ICCAD 2024 paper. Its archived MATLAB protocol, subsequent Python implementation, and separately reported experimental runs should not automatically be regarded as an exact verified reproduction of the published experimental protocol or published numerical results. In particular, the methodological limitations described below remain applicable.
+
 ## Recorded experiments
 
 Each run uses the original NASA MATLAB discharge traces, 30 training epochs, a fixed seed of 42, and the **last epoch** for test inference. Predictions are first averaged by discharge cycle; the reported metrics are then calculated across cycles.
