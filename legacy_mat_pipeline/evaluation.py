@@ -1,4 +1,4 @@
-"""Final-epoch NASA battery evaluation and reproducible output files."""
+"""Cycle-aggregated evaluation of the final-epoch NASA SOH model."""
 from __future__ import annotations
 
 import json
@@ -24,8 +24,7 @@ def evaluate_and_save(
     x_test, per_sample = testing_frame(data_dir, test_cell, scaler)
     predicted = model.predict(x_test, verbose=1).reshape(-1)
     per_sample["NewSoH"] = predicted
-    # The original numbers are computed after averaging discharge samples
-    # within each cycle, not over 132,000 individual predictions.
+    # Report metrics after aggregation of sample-level predictions by cycle.
     per_cycle = per_sample.groupby("cycle").mean().reset_index()
     true = per_cycle["SoH"]
     estimated = per_cycle["NewSoH"]
@@ -57,7 +56,7 @@ def evaluate_and_save(
             "normalizes test data with a new MinMaxScaler fit, and uses sample-level "
             "random validation. These values are not leakage-free generalization scores."
         ),
-        "source": "Original user-provided MATLAB notebook experiment",
+        "source": "NASA PCoE original MATLAB notebook protocol",
     }
     atomic_json(output_dir / "metrics.json", scores)
     atomic_json(output_dir / "config.json", provenance)
