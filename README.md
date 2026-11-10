@@ -54,3 +54,18 @@ This is **not** an exact re-run of the historical notebooks: they require
 original NASA MATLAB discharge samples, which are not versioned in this
 repository, and use a different input representation. Do not attribute
 results of the new CSV workflow to the original paper.
+
+## Original NASA MATLAB notebook reproduction (historical protocol)
+
+The two exact original sample-level notebooks have now been adapted to Colab
+with verified NASA `.mat` retrieval, per-epoch full-Keras checkpoints on Drive,
+and automatic resume after a Colab interruption:
+
+- [B0018 original-MAT Colab reproduction](notebooks/REPRO_ORIGINAL_MAT_B0018_COLAB.ipynb)
+- [B0030 original-MAT Colab reproduction](notebooks/REPRO_ORIGINAL_MAT_B0030_COLAB.ipynb)
+- [Reproduction instructions and methodological limitations](REPRODUCE_ORIGINAL_MAT.md)
+
+**Scientific warning:** this deliberately retains the original capacity-based
+input target leakage and test-set scaling convention. The numerical metrics
+cannot be described as leakage-free generalization. The separate cycle-level
+CSV experiment and its earlier checkpoint/results are preserved unchanged.
