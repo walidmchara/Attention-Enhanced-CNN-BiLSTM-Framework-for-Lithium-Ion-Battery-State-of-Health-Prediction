@@ -1,7 +1,7 @@
 """Publish a completed CNN-BiLSTM-Attention SOH experiment's small scientific artifacts to GitHub.
 
 Run after training succeeds, from a clean Colab clone. Requires GITHUB_TOKEN
-with Contents: Read and write scoped only to this public repository.
+with Contents: Read and write scoped only to this repository.
 """
 from __future__ import annotations
 
