@@ -1,4 +1,4 @@
-"""NASA MATLAB discharge-sample preprocessing used in the original notebooks."""
+"""NASA discharge-trace extraction and historical feature preparation."""
 from __future__ import annotations
 
 import datetime
@@ -23,7 +23,7 @@ CAPACITY_COLUMNS = ("cycle", "ambient_temperature", "datetime", "capacity")
 
 
 def load_data(data_dir: Path, battery: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Keep the original loop, discharge ordering and cycle numbering."""
+    """Extract ordered discharge measurements and per-cycle capacities."""
     mat_path = Path(data_dir) / f"{battery}.mat"
     mat = loadmat(str(mat_path))
     cycles = mat[battery][0, 0]["cycle"][0]
@@ -63,12 +63,11 @@ def load_data(data_dir: Path, battery: str) -> tuple[pd.DataFrame, pd.DataFrame]
 
 
 def training_arrays(data_dir: Path, cells: tuple[str, ...]):
-    """Original 7 inputs, including capacity; scaler fit BEFORE random split."""
+    """Construct the seven-feature sample-level training/validation split."""
     loaded = [load_data(data_dir, cell) for cell in cells]
     dataset = pd.concat([part[0] for part in loaded], axis=0).reset_index(drop=True)
 
-    # As in the notebooks, all development batteries share the first
-    # discharge capacity of the first development battery as denominator.
+    # SOH normalization follows the first development discharge capacity.
     first_capacity = dataset["capacity"].iloc[0]
     soh = pd.DataFrame({"SoH": dataset["capacity"] / first_capacity})
     scaler = MinMaxScaler(feature_range=(0, 1))
@@ -91,9 +90,9 @@ def training_arrays(data_dir: Path, cells: tuple[str, ...]):
 
 
 def testing_frame(data_dir: Path, cell: str, scaler: MinMaxScaler):
-    """Original test-time fit_transform and cycle-level target convention."""
+    """Prepare the original test-battery scaling and SOH reference."""
     dataset, _ = load_data(data_dir, cell)
-    # Historical behavior: RE-FIT on the test battery rather than transform.
+    # The historical test protocol fits its scaler on the test battery.
     scaled = scaler.fit_transform(dataset[list(FEATURES)])
     x_test = scaled.reshape((scaled.shape[0], scaled.shape[1], 1))
     actual = dataset["capacity"].to_numpy() / dataset["capacity"].iloc[0]
