@@ -1,0 +1,28 @@
+name: CNN-BiLSTM-Attention resume smoke test
+on:
+  push:
+    paths:
+      - 'scripts/train_resumable.py'
+      - 'tests/test_resumable_training.py'
+      - '.github/workflows/training-resume-smoke.yml'
+  pull_request:
+    paths:
+      - 'scripts/train_resumable.py'
+      - 'tests/test_resumable_training.py'
+      - '.github/workflows/training-resume-smoke.yml'
+jobs:
+  recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU research stack
+        run: python -m pip install --quiet "tensorflow-cpu>=2.18,<2.22" numpy pandas scikit-learn pytest
+      - name: Confirm measured NASA CSV split and full Keras checkpoint restoration
+        env:
+          CUDA_VISIBLE_DEVICES: "-1"
+          TF_CPP_MIN_LOG_LEVEL: "3"
+        run: python -m pytest -q tests/test_resumable_training.py
