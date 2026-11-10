@@ -33,8 +33,11 @@ checks their discharge-cycle counts before accepting their files.
 
 If downloading the official archive fails, manually save the original ZIP
 to `MyDrive/NASA_original_source/5.+Battery+Data+Set.zip` and rerun the
-setup cell. The original download has not yet been tested in this user's
-Colab environment; this is a reproducible retrieval recipe.
+setup cell. The official source ZIP download, exact SHA-256 verification, and
+extraction of all eight requested MATLAB files **passed GitHub Actions**:
+https://github.com/walidmchara/Attention-Enhanced-CNN-BiLSTM-Framework-for-Lithium-Ion-Battery-State-of-Health-Prediction/actions/runs/42798834919
+This does not claim that a full 30-epoch run has already been carried out
+in the user's Colab runtime.
 
 | Original notebook | Development cells | Test battery |
 |---|---|---|
