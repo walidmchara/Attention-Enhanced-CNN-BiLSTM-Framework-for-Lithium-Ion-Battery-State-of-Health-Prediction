@@ -1,162 +1,91 @@
-# CNN–BiLSTM with Attention for Lithium-Ion Battery SOH
+# CNN–BiLSTM with Feature-Wise Attention for Lithium-Ion Battery State-of-Health Estimation
 
-TensorFlow notebook experiments for estimating lithium-ion battery State of Health (SOH) from NASA PCoE battery-aging measurements.
+TensorFlow implementation and experimental record for lithium-ion battery state-of-health (SOH) estimation using **NASA Prognostics Center of Excellence (PCoE)** discharge measurements. The repository preserves the archived MATLAB-based experiments and provides a Python command-line pipeline, reproducible dataset preparation, training checkpoints, and versioned evaluation results.
 
-## Network architecture
+**Experimental scope:** The numerical results below reproduce the **historical notebook protocol**. That protocol has target leakage and test-dependent normalization. Accordingly, its reported accuracy must **not** be interpreted as evidence of leakage-free SOH prediction or cross-battery generalization. A separate, train-only-normalized cycle-level pipeline is provided for method development; it is not a like-for-like reproduction of the MATLAB experiments.
 
-`Discharge measurements → Conv1D → MaxPooling → Dropout → BiLSTM → Attention → SOH regression`
+## Recorded experiments
 
-The experimental notebook architecture uses a 64-filter convolutional layer, 0.30 dropout, a bidirectional LSTM with 100 units, an attention stage and dense regression output. The optimizer is Adam with mean-squared-error loss.
+Each run uses the original NASA MATLAB discharge traces, 30 training epochs, a fixed seed of 42, and the **last epoch** for test inference. Predictions are first averaged by discharge cycle; the reported metrics are then calculated across cycles.
 
-## Battery-level experiments
+| Test cell | Development cells | Test cycles | MAE | RMSE | R² | MAPE |
+|---|---|---:|---:|---:|---:|---:|
+| **B0018** | B0005, B0006, B0007 | 132 | **0.004402** | **0.005765** | **0.995196** | **0.5563%** |
+| **B0030** | B0029, B0032, B0031 | 40 | **0.004564** | **0.005559** | **0.976597** | **0.4449%** |
 
-| Experiment | Development cells | Independent test cell | Notebook |
-| --- | --- | --- | --- |
-| NASA B0018 | B0005, B0006, B0007 | **B0018** | [B0018 experiment](notebooks/CNN_BiLSTM_Attention_B0018.ipynb) |
-| NASA B0030 | B0029, B0031, B0032 | **B0030** | [B0030 experiment](notebooks/CNN_BiLSTM_Attention_B0030.ipynb) |
+These are **observed historical-protocol results**, not a statistically controlled comparison between different methods. The two test cells have different operating histories and SOH variances. For a detailed breakdown, source hashes, full-precision metrics, and diagnostic plots, consult the experiment reports.
 
-The MATLAB-based notebooks extract sample-level voltage, current, temperature, load measurements and time information. SOH is defined relative to the initial measured capacity. Feature selection must be reviewed for target leakage in any independent evaluation.
+- [NASA B0018 — complete evaluation report](results/legacy_mat_b0018_e30_seed42/README.md)
+- [NASA B0030 — complete evaluation report](results/legacy_mat_b0030_e30_seed42/README.md)
 
-## Datasets
+### Observed and estimated SOH
 
-The repository includes 12 NASA PCoE battery series and four CALCE CS2 series as cycle-level CSV tables in [data/processed/](data/processed/). The [dataset manifest](data/processed/manifest.json) records source checksums and conversion counts.
+| B0018 (132 test cycles) | B0030 (40 test cycles) |
+|---|---|
+| ![Measured and estimated SOH, B0018](results/legacy_mat_b0018_e30_seed42/soh_prediction_B0018.png) | ![Measured and estimated SOH, B0030](results/legacy_mat_b0030_e30_seed42/soh_prediction_B0030.png) |
 
-The two existing TensorFlow notebooks use the **original NASA MATLAB discharge traces**, not the CSV aggregates. Their MATLAB inputs are read from repository-relative paths under `data/` (for example `data/B0005.mat`). These source files are maintained separately from the versioned CSV tables. See [data documentation](data/README.md) and [source extraction guide](docs/REAL_DATA_SETUP.md) for their precise format and provenance.
+### Prediction diagnostics
 
-## Environment
+| B0018 | B0030 |
+|---|---|
+| ![Measured versus predicted SOH parity, B0018](results/legacy_mat_b0018_e30_seed42/parity_B0018.svg) | ![Measured versus predicted SOH parity, B0030](results/legacy_mat_b0030_e30_seed42/parity_B0030.svg) |
 
-```bash
-python -m venv .venv
-pip install -r requirements.txt
-jupyter notebook
-```
+Residuals and training convergence are provided separately: [B0018 residuals](results/legacy_mat_b0018_e30_seed42/signed_residuals_B0018.svg), [B0030 residuals](results/legacy_mat_b0030_e30_seed42/signed_residuals_B0030.svg), [B0018 training curves](results/legacy_mat_b0018_e30_seed42/training_convergence.png), and [B0030 training curves](results/legacy_mat_b0030_e30_seed42/training_convergence.png).
 
-Activate the environment according to the operating system before starting Jupyter. The notebooks are located in [notebooks/](notebooks/). Evaluation includes SOH curves, prediction error and training history.
+## Model specification
 
-## Research notes
+The historical network maps seven observed discharge features to a scalar SOH estimate:
 
-For reproducible battery-level evaluation, keep the held-out cell outside feature selection, normalization fitting and training. The included processed tables and notebook workflows do not by themselves establish correspondence with any publication's reported benchmark scores.
+`Seven discharge measurements → Conv1D(64, kernel=3) → MaxPooling1D(2) → Dropout(0.30) → Bidirectional LSTM(100) → sigmoid Dense(200) gate → element-wise multiplication → Dense(1)`
 
-The underlying battery datasets are maintained by the [NASA Prognostics Center of Excellence](https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/) and [CALCE/University of Maryland](https://calce.umd.edu/data). The project is distributed under the terms of its [LICENSE](LICENSE).
+The model is optimized with Adam using mean squared error (MSE) and a batch size of 32. The gate applies feature-wise multiplication to the BiLSTM representation; it is **not** a Transformer attention layer. The original implementation also logs classification accuracy, which is not an informative performance metric for continuous SOH regression. MAE, RMSE, MAPE, and R² are calculated from the cycle-aggregated predictions.
 
-## Completed NASA B0018 experiment — measured results
+The implementation is in [`legacy_mat_pipeline/`](legacy_mat_pipeline/). The archived source notebooks remain available under [`notebooks/`](notebooks/).
 
-**30-epoch CNN–BiLSTM–Attention reproduction using original NASA PCoE MATLAB discharge traces**, with B0005/B0006/B0007 for development and B0018 for the held-out battery. The model was executed in Colab, evaluated over **132 B0018 discharge cycles**, and the numerical outputs, plots and provenance files were committed to GitHub.
+## Data and preprocessing
 
-| Metric | **Completed Python run (B0018)** | Archived original B0018 notebook |
-|---|---:|---:|
-| **MAE** | **0.004402** | 0.0063 (rounded) |
-| **RMSE** | **0.005765** | 0.006943 |
-| **R²** | **0.995196** | Not reported in archived output |
-| **MAPE** | **0.5563%** | 0.7367% |
-| Epochs | 30 / 30 | 30 |
+The historical pipeline uses the **original sample-level MATLAB `.mat` files**, rather than the versioned cycle-level CSV summaries. The official NASA source archive is downloaded and verified before training; the precise source file SHA-256 hashes are included in each run's `config.json`. All source archives and trained model weights are excluded from the Git repository.
 
-The run's RMSE is approximately **17% below** the archived notebook output (and MAE approximately **30% below** its rounded value). This comparison is **descriptive**, not an architecture improvement claim: initialization/runtime may differ and the original notebook methodology is deliberately retained.
+Additional processed datasets are available under [`data/processed/`](data/processed/):
 
-**Important limitation:** in this historical protocol, `capacity` is both an input feature and the basis of the SOH target; test MinMax scaling is also re-fitted on B0018. These impressive **within-protocol** errors are therefore **not leakage-free cross-battery generalization**.
+- NASA PCoE: 12 battery series, 1,157 cycle-level records.
+- CALCE CS2 (University of Maryland): four battery series, 3,921 cycle-level records.
 
-[**Full B0018 experiment report: metrics, five figures, data and limitations**](results/legacy_mat_b0018_e30_seed42/README.md)
+The CALCE tables are data resources; they were **not** used for the two B0018/B0030 historical experiments documented above. See [data provenance](data/README.md), [processing instructions](docs/REAL_DATA_SETUP.md), and the [processed-dataset manifest](data/processed/manifest.json).
 
-### Measured SOH and model predictions
+## Running the historical MATLAB-based pipeline
 
-![NASA B0018 measured and predicted SOH over 132 cycles](results/legacy_mat_b0018_e30_seed42/soh_prediction_B0018.png)
-
-### Per-cycle actual/predicted SOH parity
-
-![B0018 per-cycle actual vs predicted SOH from the measured CSV](results/legacy_mat_b0018_e30_seed42/parity_B0018.svg)
-
-For further diagnostics, see the [signed residuals](results/legacy_mat_b0018_e30_seed42/signed_residuals_B0018.svg), [absolute-error distribution](results/legacy_mat_b0018_e30_seed42/absolute_error_distribution_B0018.svg) and [30-epoch learning curves](results/legacy_mat_b0018_e30_seed42/training_convergence.png). Full source values are in [metrics.json](results/legacy_mat_b0018_e30_seed42/metrics.json), [test_predictions.csv](results/legacy_mat_b0018_e30_seed42/test_predictions.csv) and [training_history.csv](results/legacy_mat_b0018_e30_seed42/training_history.csv).
-
-The original `.keras` model and recovery checkpoints are retained in the owner's Google Drive, **not** in GitHub. B0030 is a distinct experiment; do not carry B0018's metrics over to it. 
-
-## Completed NASA B0030 experiment — measured results
-
-**Second historical raw-MAT reproduction successfully completed and published:** 30 epochs, 40 B0030 discharge cycles, seed 42; B0029/B0032/B0031 are the development cells. All values below are taken from the committed original-data test predictions and metrics.
-
-| Metric | **B0030 Python run** | Archived original B0030 notebook |
-|---|---:|---:|
-| **MAE** | **0.004564** | 0.0053 (rounded) |
-| **RMSE** | **0.005559** | 0.006686 |
-| **R²** | **0.976597** | Not reported |
-| **MAPE** | **0.444860%** | 0.546210% |
-| Epochs / test cycles | 30 / 40 | 30 / 40 |
-
-The new B0030 run records ~**16.9% lower RMSE** than the notebook's archived output. This is a **descriptive reproduction comparison**, not a new-method or generalization claim.
-
-[**B0030 measured-results report: five plots, sources and scientific discussion**](results/legacy_mat_b0030_e30_seed42/README.md)
-
-### B0030 measured versus predicted SOH
-
-![B0030 observed and estimated SOH over 40 original-data test cycles](results/legacy_mat_b0030_e30_seed42/soh_prediction_B0030.png)
-
-### B0030 actual/predicted parity
-
-![40 B0030 real test cycles: predicted vs measured SOH](results/legacy_mat_b0030_e30_seed42/parity_B0030.svg)
-
-The [signed residual plot](results/legacy_mat_b0030_e30_seed42/signed_residuals_B0030.svg), [absolute-error histogram](results/legacy_mat_b0030_e30_seed42/absolute_error_distribution_B0030.svg), and [training convergence](results/legacy_mat_b0030_e30_seed42/training_convergence.png) are also based on the published B0030 results.
-
-### Comparison of the two completed original-MAT reproductions
-
-| Metric | B0018 (132 cycles) | B0030 (40 cycles) |
-|---|---:|---:|
-| **MAE** | 0.004402 | 0.004564 |
-| **RMSE** | 0.005765 | 0.005559 |
-| **R²** | 0.995196 | 0.976597 |
-| **MAPE** | 0.556322% | 0.444860% |
-| Completed epochs | 30 | 30 |
-
-B0030 has lower RMSE and MAPE, but B0018 has lower MAE and higher R²; different SOH distributions and test-set sizes prevent treating this as an independent ranking of model generalization.
-
-**Research integrity:** Both historic-protocol experiments use same-cycle `capacity` as an input to predict SOH computed from capacity, and refit a MinMax scaler to the test battery. Their small errors **do not constitute independent leakage-free SOH prediction evidence**. The separate corrected cycle-level CSV experiment remains available above/below and must not be conflated with these reproductions. The full model files and checkpoints remain on Google Drive, not in GitHub.
-
-## Fully resumable Colab training from the included NASA CSV data
-
-For a **new, leakage-aware cycle-level evaluation**, use the
-[resumable Colab notebook](notebooks/train_resumable_colab.ipynb) and
-[training/recovery guide](TRAINING_RECOVERY.md). The 30-epoch B0018 trial
-trains on B0005/B0006, validates on B0007 and tests only on B0018;
-features exclude battery capacity and target columns, and MinMax scaling
-uses training cells only. Keras saves model + optimizer state to
-**persistent Google Drive** after each epoch. It can resume with
-`--resume`; small scientific reports can be published to GitHub.
-
-This is **not** an exact re-run of the historical notebooks: they require
-original NASA MATLAB discharge samples, which are not versioned in this
-repository, and use a different input representation. Do not attribute
-results of the new CSV workflow to the original paper.
-
-## Original NASA MATLAB notebook reproduction (historical protocol)
-
-The two exact original sample-level notebooks have now been adapted to Colab
-with verified NASA `.mat` retrieval, per-epoch full-Keras checkpoints on Drive,
-and automatic resume after a Colab interruption:
-
-- [B0018 original-MAT Colab reproduction](notebooks/REPRO_ORIGINAL_MAT_B0018_COLAB.ipynb)
-- [B0030 original-MAT Colab reproduction](notebooks/REPRO_ORIGINAL_MAT_B0030_COLAB.ipynb)
-- [Reproduction instructions and methodological limitations](REPRODUCE_ORIGINAL_MAT.md)
-
-**Scientific warning:** this deliberately retains the original capacity-based
-input target leakage and test-set scaling convention. The numerical metrics
-cannot be described as leakage-free generalization. The separate cycle-level
-CSV experiment and its earlier checkpoint/results are preserved unchanged.
-
-
-## Standalone Python training (no notebook execution)
-
-The original MATLAB experiments can now be run directly from the
-[Python pipeline](legacy_mat_pipeline/) instead of executing the Colab
-`.ipynb` files. The original notebooks remain intact.
-
-After installing `requirements.txt` and mounting Google Drive in Colab:
+After installing the Python dependencies from `requirements.txt` and mounting Google Drive in Colab, execute from the repository root:
 
 ```bash
 python -m legacy_mat_pipeline --experiment B0018 --run-root /content/drive/MyDrive/NASA_CNN_BiLSTM_Attention
+python -m legacy_mat_pipeline --experiment B0030 --run-root /content/drive/MyDrive/NASA_CNN_BiLSTM_Attention
 ```
 
-Use `--experiment B0030` for the second original experiment. The runner
-downloads and validates the NASA `.mat` inputs, preserves the original
-seven features (including capacity), trains for 30 epochs, resumes full
-Keras checkpoints, computes metrics after cycle-wise averaging and saves
-plots plus reports. See the [Python usage guide](legacy_mat_pipeline/README.md)
-for Colab setup and output paths. This remains an archival reproduction
-with known target leakage, not a leakage-free SOH benchmark.
+The corresponding NASA source `.mat` files are recovered automatically. To reuse a previously downloaded official ZIP, provide `--archive` with its path. Each epoch saves a full Keras checkpoint with optimizer state to the designated persistent run directory; the final two epochs are retained. The model, prediction CSV, metrics JSON, configuration, training history, and figures are saved for each experiment.
+
+The models (`.keras`), checkpoints, and original NASA archives are retained in Google Drive, while the small experimental reports and figures are committed to GitHub.
+
+Reproduction and environment notes: [MATLAB pipeline](REPRODUCE_ORIGINAL_MAT.md) · [Python package instructions](legacy_mat_pipeline/README.md) · [checkpoint recovery](TRAINING_RECOVERY.md).
+
+## Experimental validity and limitations
+
+The archived implementation reproduces choices that would not be acceptable for an independent, leakage-free battery-health forecasting benchmark:
+
+1. **Target leakage:** same-cycle `capacity` is one of the seven network inputs, whereas the SOH label is derived from capacity.
+2. **Test-dependent normalization:** the MinMax scaler is refitted on the held-out battery at inference time.
+3. **Sample-level validation contamination:** development measurements are randomly split 80/20. Measurements from a single discharge cycle can appear in both the training and validation subsets.
+4. **Representation limitation:** the network processes a seven-element feature vector as a sequence; it is not explicitly modeling chronological degradation across cycles.
+5. **Limited comparative evidence:** two single-seed historical reruns do not constitute a multi-seed, uncertainty-quantified, cross-dataset method comparison.
+
+The separate [cycle-level training workflow](notebooks/train_resumable_colab.ipynb) excludes capacity-related predictors and fits preprocessing on training data only, using a battery-wise split. Its different input representation and experimental design prevent direct metric comparison with the MATLAB-based results.
+
+For future independent evaluation, model selection should use only development batteries, normalize on training data, avoid same-cycle capacity-derived features when predicting capacity-based SOH, and report multiple seeds and distinct held-out batteries.
+
+## Verification
+
+The recorded results include `metrics.json`, `test_predictions.csv`, `training_history.csv`, source-file hashes, and a publication manifest with SHA-256 checksums. [Automated integrity checks](.github/workflows/publication-integrity.yml) verify metrics against the committed predictions and check figure presence, history length, artifact hashes, and disallowed file types. These checks establish artifact consistency, **not** the methodological validity of the original training protocol.
+
+Dataset acknowledgments: [NASA Prognostics Center of Excellence](https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/) and [CALCE, University of Maryland](https://calce.umd.edu/data).
+
+License: [LICENSE](LICENSE).
