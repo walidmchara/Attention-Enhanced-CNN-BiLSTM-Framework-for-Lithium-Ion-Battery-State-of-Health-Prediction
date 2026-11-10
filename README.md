@@ -69,6 +69,46 @@ For further diagnostics, see the [signed residuals](results/legacy_mat_b0018_e30
 
 The original `.keras` model and recovery checkpoints are retained in the owner's Google Drive, **not** in GitHub. B0030 is a distinct experiment; do not carry B0018's metrics over to it. 
 
+## Completed NASA B0030 experiment — measured results
+
+**Second historical raw-MAT reproduction successfully completed and published:** 30 epochs, 40 B0030 discharge cycles, seed 42; B0029/B0032/B0031 are the development cells. All values below are taken from the committed original-data test predictions and metrics.
+
+| Metric | **B0030 Python run** | Archived original B0030 notebook |
+|---|---:|---:|
+| **MAE** | **0.004564** | 0.0053 (rounded) |
+| **RMSE** | **0.005559** | 0.006686 |
+| **R²** | **0.976597** | Not reported |
+| **MAPE** | **0.444860%** | 0.546210% |
+| Epochs / test cycles | 30 / 40 | 30 / 40 |
+
+The new B0030 run records ~**16.9% lower RMSE** than the notebook's archived output. This is a **descriptive reproduction comparison**, not a new-method or generalization claim.
+
+[**B0030 measured-results report: five plots, sources and scientific discussion**](results/legacy_mat_b0030_e30_seed42/README.md)
+
+### B0030 measured versus predicted SOH
+
+![B0030 observed and estimated SOH over 40 original-data test cycles](results/legacy_mat_b0030_e30_seed42/soh_prediction_B0030.png)
+
+### B0030 actual/predicted parity
+
+![40 B0030 real test cycles: predicted vs measured SOH](results/legacy_mat_b0030_e30_seed42/parity_B0030.svg)
+
+The [signed residual plot](results/legacy_mat_b0030_e30_seed42/signed_residuals_B0030.svg), [absolute-error histogram](results/legacy_mat_b0030_e30_seed42/absolute_error_distribution_B0030.svg), and [training convergence](results/legacy_mat_b0030_e30_seed42/training_convergence.png) are also based on the published B0030 results.
+
+### Comparison of the two completed original-MAT reproductions
+
+| Metric | B0018 (132 cycles) | B0030 (40 cycles) |
+|---|---:|---:|
+| **MAE** | 0.004402 | 0.004564 |
+| **RMSE** | 0.005765 | 0.005559 |
+| **R²** | 0.995196 | 0.976597 |
+| **MAPE** | 0.556322% | 0.444860% |
+| Completed epochs | 30 | 30 |
+
+B0030 has lower RMSE and MAPE, but B0018 has lower MAE and higher R²; different SOH distributions and test-set sizes prevent treating this as an independent ranking of model generalization.
+
+**Research integrity:** Both historic-protocol experiments use same-cycle `capacity` as an input to predict SOH computed from capacity, and refit a MinMax scaler to the test battery. Their small errors **do not constitute independent leakage-free SOH prediction evidence**. The separate corrected cycle-level CSV experiment remains available above/below and must not be conflated with these reproductions. The full model files and checkpoints remain on Google Drive, not in GitHub.
+
 ## Fully resumable Colab training from the included NASA CSV data
 
 For a **new, leakage-aware cycle-level evaluation**, use the
