@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert user-provided NASA PCoE and CALCE CS2 archives to cycle-level CSVs.
+"""Convert NASA PCoE and CALCE CS2 archives to cycle-level CSVs.
 
 The source archives remain local and are not committed to GitHub. This is an
 independently implemented, reproducible *data preparation* utility; it does not
