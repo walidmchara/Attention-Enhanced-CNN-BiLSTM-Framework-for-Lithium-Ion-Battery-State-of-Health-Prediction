@@ -36,8 +36,8 @@ to `MyDrive/NASA_original_source/5.+Battery+Data+Set.zip` and rerun the
 setup cell. The official source ZIP download, exact SHA-256 verification, and
 extraction of all eight requested MATLAB files **passed GitHub Actions**:
 https://github.com/walidmchara/Attention-Enhanced-CNN-BiLSTM-Framework-for-Lithium-Ion-Battery-State-of-Health-Prediction/actions/runs/42798834919
-This does not claim that a full 30-epoch run has already been carried out
-in the user's Colab runtime.
+The original MATLAB pipeline has since been evaluated for 30 epochs on B0018
+and B0030; the recorded results and source hashes are available under `results/`.
 
 | Original notebook | Development cells | Test battery |
 |---|---|---|
