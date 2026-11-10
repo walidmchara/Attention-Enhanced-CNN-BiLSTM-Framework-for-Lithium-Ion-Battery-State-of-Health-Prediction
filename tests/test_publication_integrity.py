@@ -118,7 +118,9 @@ class RecordedResultsIntegrity(unittest.TestCase):
                     self.assertEqual(path.stat().st_size, entry["size_bytes"])
                     self.assertEqual(digest(path), entry["sha256"])
 
-                self.assertIn("target leak", (root / "README.md").read_text().lower())
+                report = (root / "README.md").read_text(encoding="utf-8").lower()
+                self.assertIn("capacity", report)
+                self.assertIn("leakage", report)
                 for template in FIGURES:
                     fig = root / template.format(cell=cell)
                     self.assertTrue(fig.is_file(), msg=str(fig))
