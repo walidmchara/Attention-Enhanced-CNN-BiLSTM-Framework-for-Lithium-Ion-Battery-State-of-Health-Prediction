@@ -1,0 +1,38 @@
+{
+  "run_id": "legacy_mat_b0018_e30_seed42",
+  "published_at_utc": "2026-11-10T12:10:21.847981+00:00",
+  "files": [
+    {
+      "name": "config.json",
+      "size_bytes": 1358,
+      "sha256": "05e4d7c73d5fb4d7925eabe960f89c80f07c265b2223d91a46a087a2dd2878db"
+    },
+    {
+      "name": "metrics.json",
+      "size_bytes": 728,
+      "sha256": "91841be831c283197c6c3e37801fe556fb314ee185f37664a1b72ad3c322327d"
+    },
+    {
+      "name": "soh_prediction_B0018.png",
+      "size_bytes": 145169,
+      "sha256": "74d58292ffc28e7def6ad6a5f332761f7c30aeee2ae2b82bba36b0804291e267"
+    },
+    {
+      "name": "test_predictions.csv",
+      "size_bytes": 4281,
+      "sha256": "691f313c1d813d14f5b6493f877ec7afbead487a603c6eb6d1604232c82e404b"
+    },
+    {
+      "name": "training_convergence.png",
+      "size_bytes": 81179,
+      "sha256": "04b81c7e0c3f96dbb2e917b9d3d567a7f7de3813314e840692bf1f71861e2a51"
+    },
+    {
+      "name": "training_history.csv",
+      "size_bytes": 2736,
+      "sha256": "5ce238e7f11c87a20f9d658e8a00dd472895feaf1b9c8005a4e00851d5875d17"
+    }
+  ],
+  "skipped_files": [],
+  "checkpoint_note": "Full Keras .keras epoch checkpoints remain in persistent Drive/volume, outside ordinary Git history"
+}

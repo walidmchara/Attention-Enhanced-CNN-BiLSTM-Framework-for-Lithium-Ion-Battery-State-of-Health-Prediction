@@ -1,0 +1,33 @@
+{
+  "batch_size": 32,
+  "epochs": 30,
+  "evaluation": "final-epoch predictions, mean over individual discharge cycles",
+  "experiment": "B0018",
+  "historical_leakage": [
+    "capacity is input feature and determines target SOH",
+    "MinMaxScaler fit on all development samples before train/validation split",
+    "MinMaxScaler re-fitted on independent test battery",
+    "random sample-level validation split groups repeated cycles together"
+  ],
+  "loss": "mse",
+  "mat_sha256": {
+    "B0005": "0eae4585baf3f200c09fe24c5ab884f1889679fc75206ca1aa19da704104f0b0",
+    "B0006": "fa818ab4db5db8ab21e910b6dd6c3e20d3761bb9672089e1a4de8f96074616c5",
+    "B0007": "d022afa086efaf54ab5b63f05220f5be178c8027e2fa8d68589db0e85a441a3b",
+    "B0018": "d1e6c923a43ea1c9666b3a90bbb521757a067fd60b4d17dbfaa49c50b179da69"
+  },
+  "metric": "accuracy (as in original)",
+  "model": "Conv1D(64,k3)-MaxPooling(2)-Dropout(.3)-BiLSTM(100,relu)-Dense(200,sigmoid)-Multiply-Dense(1,relu)",
+  "optimizer": "Adam default",
+  "protocol": "original NASA sample-level MATLAB notebook, leakage-retaining",
+  "scientific_caution": "Historical reproduction only, NOT independent leakage-free generalization",
+  "seed_added_for_reproducibility": 42,
+  "test_cell": "B0018",
+  "test_size": 0.2,
+  "train_test_random_state": 0,
+  "training_cells": [
+    "B0005",
+    "B0006",
+    "B0007"
+  ]
+}
