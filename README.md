@@ -39,6 +39,36 @@ For reproducible battery-level evaluation, keep the held-out cell outside featur
 
 The underlying battery datasets are maintained by the [NASA Prognostics Center of Excellence](https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/) and [CALCE/University of Maryland](https://calce.umd.edu/data). The project is distributed under the terms of its [LICENSE](LICENSE).
 
+## Completed NASA B0018 experiment — measured results
+
+**30-epoch CNN–BiLSTM–Attention reproduction using original NASA PCoE MATLAB discharge traces**, with B0005/B0006/B0007 for development and B0018 for the held-out battery. The model was executed in Colab, evaluated over **132 B0018 discharge cycles**, and the numerical outputs, plots and provenance files were committed to GitHub.
+
+| Metric | **Completed Python run (B0018)** | Archived original B0018 notebook |
+|---|---:|---:|
+| **MAE** | **0.004402** | 0.0063 (rounded) |
+| **RMSE** | **0.005765** | 0.006943 |
+| **R²** | **0.995196** | Not reported in archived output |
+| **MAPE** | **0.5563%** | 0.7367% |
+| Epochs | 30 / 30 | 30 |
+
+The run's RMSE is approximately **17% below** the archived notebook output (and MAE approximately **30% below** its rounded value). This comparison is **descriptive**, not an architecture improvement claim: initialization/runtime may differ and the original notebook methodology is deliberately retained.
+
+**Important limitation:** in this historical protocol, `capacity` is both an input feature and the basis of the SOH target; test MinMax scaling is also re-fitted on B0018. These impressive **within-protocol** errors are therefore **not leakage-free cross-battery generalization**.
+
+[**Full B0018 experiment report: metrics, five figures, data and limitations**](results/legacy_mat_b0018_e30_seed42/README.md)
+
+### Measured SOH and model predictions
+
+![NASA B0018 measured and predicted SOH over 132 cycles](results/legacy_mat_b0018_e30_seed42/soh_prediction_B0018.png)
+
+### Per-cycle actual/predicted SOH parity
+
+![B0018 per-cycle actual vs predicted SOH from the measured CSV](results/legacy_mat_b0018_e30_seed42/parity_B0018.svg)
+
+For further diagnostics, see the [signed residuals](results/legacy_mat_b0018_e30_seed42/signed_residuals_B0018.svg), [absolute-error distribution](results/legacy_mat_b0018_e30_seed42/absolute_error_distribution_B0018.svg) and [30-epoch learning curves](results/legacy_mat_b0018_e30_seed42/training_convergence.png). Full source values are in [metrics.json](results/legacy_mat_b0018_e30_seed42/metrics.json), [test_predictions.csv](results/legacy_mat_b0018_e30_seed42/test_predictions.csv) and [training_history.csv](results/legacy_mat_b0018_e30_seed42/training_history.csv).
+
+The original `.keras` model and recovery checkpoints are retained in the owner's Google Drive, **not** in GitHub. B0030 is a distinct experiment; do not carry B0018's metrics over to it. 
+
 ## Fully resumable Colab training from the included NASA CSV data
 
 For a **new, leakage-aware cycle-level evaluation**, use the
