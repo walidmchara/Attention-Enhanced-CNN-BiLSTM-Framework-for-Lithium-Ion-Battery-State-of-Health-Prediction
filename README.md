@@ -116,6 +116,12 @@ Scientific validation, code provenance, licensing and disclosure considerations 
 
 The recorded results include `metrics.json`, `test_predictions.csv`, `training_history.csv`, source-file hashes, and a publication manifest with SHA-256 checksums. [Automated integrity checks](.github/workflows/publication-integrity.yml) verify metrics against the committed predictions and check figure presence, history length, artifact hashes, and disallowed file types. These checks establish artifact consistency, **not** the methodological validity of the original training protocol.
 
+Run the artifact-integrity check locally with:
+
+```bash
+python -m unittest discover -s tests -p 'test_publication_integrity.py' -v
+```
+
 Dataset acknowledgments: [NASA Prognostics Center of Excellence](https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/) and [CALCE, University of Maryland](https://calce.umd.edu/data).
 
 License: [LICENSE](LICENSE).
