@@ -9,6 +9,7 @@ from pathlib import Path
 import sys
 
 import numpy as np
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -23,6 +24,28 @@ from scripts.train_resumable import (
 
 
 class RealDataAndRecoveryTest(unittest.TestCase):
+    def test_scaler_is_invariant_to_validation_and_test_measurements(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for cell, value in (("B0005", 1.0), ("B0006", 2.0),
+                                ("B0007", 3.0), ("B0018", 4.0)):
+                frame = pd.DataFrame({
+                    "cycle": [1, 2],
+                    "capacity_ah": [2.0, 1.9],
+                    **{name: [value, value + 0.1] for name in FEATURES},
+                })
+                frame.to_csv(root / f"{cell}.csv", index=False)
+            train, _, _, _, scaler, _ = prepare_data(root, "B0018")
+            for cell in ("B0007", "B0018"):
+                path = root / f"{cell}.csv"
+                frame = pd.read_csv(path)
+                frame.loc[:, list(FEATURES)] += 1000
+                frame.to_csv(path, index=False)
+            altered_train, _, _, _, altered_scaler, _ = prepare_data(root, "B0018")
+            np.testing.assert_allclose(scaler.data_min_, altered_scaler.data_min_)
+            np.testing.assert_allclose(scaler.data_max_, altered_scaler.data_max_)
+            np.testing.assert_allclose(train[0], altered_train[0])
+
     def test_measured_csv_separation(self):
         train, valid, test, manifest, scaler, held_out = prepare_data(
             ROOT / "data/processed/nasa", "B0018"
